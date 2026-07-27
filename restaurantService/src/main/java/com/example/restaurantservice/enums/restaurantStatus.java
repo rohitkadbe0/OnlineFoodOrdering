@@ -1,6 +1,6 @@
 package com.example.restaurantservice.enums;
 
-public enum restaurantStatus {
+public enum RestaurantStatus {
     OPEN,
     CLOSED
 }
