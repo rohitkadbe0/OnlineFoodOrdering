@@ -14,6 +14,7 @@ import java.time.LocalTime;
 @Table(name = "restaurants")
 @NoArgsConstructor
 @AllArgsConstructor
+
 public class Restaurant {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

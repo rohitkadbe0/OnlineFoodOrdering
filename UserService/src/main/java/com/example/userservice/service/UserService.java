@@ -19,7 +19,7 @@ public class UserService implements UserDetailsService {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-    //This method is present in the userDetailsService
+    //This method is present in the userDetailsService used for login purpose
     @Override
     public UserDetails loadUserByUsername(String username) {
         User user = userRepository.findByUsername(username)
