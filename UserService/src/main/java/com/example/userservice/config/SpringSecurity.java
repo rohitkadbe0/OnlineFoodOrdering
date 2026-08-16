@@ -22,7 +22,6 @@ import org.springframework.security.web.SecurityFilterChain;
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
-@RequiredArgsConstructor
 public class SpringSecurity {
 
 
@@ -44,11 +43,6 @@ public class SpringSecurity {
                         .requestMatchers("/user/register",
                                 "/user/login"
                                 , "/user/name/**").permitAll()
-
-                        // User endpoints (authenticated users)
-                        .requestMatchers("/user/**").authenticated()
-                        .requestMatchers(HttpMethod.POST, "/admin/create")
-                        .hasAnyRole("ADMIN")
 
                         // Everything else
                         .anyRequest().authenticated()

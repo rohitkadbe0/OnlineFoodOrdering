@@ -7,6 +7,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.DayOfWeek;
 import java.time.LocalTime;
 
 @Entity
@@ -32,4 +33,6 @@ public class Restaurant {
     private ApprovalStatus approvalStatus;
     @Enumerated(EnumType.STRING)
     private RestaurantStatus restaurantStatus;
+    @Enumerated(EnumType.STRING)
+    private DayOfWeek weeklyOff;
 }

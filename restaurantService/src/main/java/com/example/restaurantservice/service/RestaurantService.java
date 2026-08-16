@@ -19,6 +19,11 @@ public class RestaurantService {
 
 
     public void saveEntry(Restaurant restaurant) {
+        if(restaurant.getRestaurantName().equalsIgnoreCase("restaurant")){
+            throw new IllegalArgumentException(
+                    "Restaurant name cannot be 'restaurant'"
+            );
+        }
      restaurant.setApprovalStatus(ApprovalStatus.PENDING);
         restaurantRepository.save(restaurant);
     }

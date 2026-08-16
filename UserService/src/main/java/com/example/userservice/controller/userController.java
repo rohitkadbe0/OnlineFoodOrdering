@@ -3,7 +3,6 @@ package com.example.userservice.controller;
 import com.example.userservice.dto.LogIn;
 import com.example.userservice.dto.Register;
 import com.example.userservice.entity.User;
-import com.example.userservice.repository.UserRepository;
 import com.example.userservice.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
