@@ -2,6 +2,7 @@ package com.example.restaurantservice.controller;
 
 import com.example.restaurantservice.entity.Restaurant;
 import com.example.restaurantservice.enums.ApprovalStatus;
+import com.example.restaurantservice.enums.RestaurantStatus;
 import com.example.restaurantservice.service.RestaurantService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -40,7 +41,6 @@ public class RestaurantController {
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
-    @PreAuthorize("hasRole('ADMIN') or hasRole('RESTAURANT_OWNER')")
     @GetMapping("/restaurantName/{restaurantName}")
     public ResponseEntity<Restaurant> findByName(@PathVariable String restaurantName) {
         Optional<Restaurant> byRestaurantName = restaurantService.findByName(restaurantName);
@@ -74,4 +74,19 @@ public class RestaurantController {
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
                 .body("Restaurant not found");
     }
+@GetMapping("/status/name/{restaurantName}")
+public ResponseEntity<?> getRestaurantStatus(@PathVariable String restaurantName){
+        Optional<Restaurant> restaurant = restaurantService.findByName(restaurantName);
+        if(restaurant.isEmpty()){
+            return ResponseEntity.notFound().build();
+        }
+        Restaurant r= restaurant.get();
+        if(restaurantService.isRestaurantOpen(r)){
+            r.setRestaurantStatus(RestaurantStatus.OPEN);
+        }else{
+            r.setRestaurantStatus(RestaurantStatus.CLOSED);
+        }
+        return ResponseEntity.ok(r);
+}
+
 }

@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
 import java.util.Optional;
@@ -33,6 +34,7 @@ public class RestaurantService {
     }
 
     public Optional<Restaurant> findByName(String restaurantName) {
+
         return restaurantRepository.findByRestaurantName(restaurantName);
     }
 
@@ -58,5 +60,14 @@ public class RestaurantService {
         r.setApprovalStatus(status);
         restaurantRepository.save(r);
         return true;
+    }
+    public boolean isRestaurantOpen(Restaurant restaurant){
+        LocalDateTime now =LocalDateTime.now();
+        if(now.getDayOfWeek()==restaurant.getWeeklyOff()){
+            return false;
+        }
+        LocalTime currentTime = now.toLocalTime();
+        return !currentTime.isBefore(restaurant.getOpeningTime())
+        && currentTime.isBefore(restaurant.getClosingTime());
     }
 }
