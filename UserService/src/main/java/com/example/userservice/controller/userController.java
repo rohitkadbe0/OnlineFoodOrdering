@@ -31,13 +31,15 @@ public class userController {
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LogIn request) {
         try {
-            Authentication authentication = authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(
-                            request.getUsername(),
-                            request.getPassword()
-                    )
-            );
-            UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+            Authentication authentication =
+                    authenticationManager.authenticate(
+                            new UsernamePasswordAuthenticationToken(
+                                    request.getUsername(),
+                                    request.getPassword()
+                            )
+                    );
+            UserDetails userDetails =
+                    (UserDetails) authentication.getPrincipal();
             String token = jwtService.generateToken(userDetails);
             return ResponseEntity.ok(token);
 

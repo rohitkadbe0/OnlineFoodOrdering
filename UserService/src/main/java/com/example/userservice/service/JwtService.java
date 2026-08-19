@@ -11,7 +11,7 @@ import java.util.Date;
 
 @Service
 public class JwtService {
-    private final String SECRET_KEY = "myProjectOnlineFoodOrdering";
+    private final String SECRET_KEY = "myVerySecretKeyForOnlineFoodOrderingApplication12345";
     private final SecretKey key = Keys.hmacShaKeyFor(
             SECRET_KEY.getBytes(StandardCharsets.UTF_8)
     );

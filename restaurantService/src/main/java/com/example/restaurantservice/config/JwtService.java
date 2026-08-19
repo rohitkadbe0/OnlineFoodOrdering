@@ -10,11 +10,11 @@ import java.nio.charset.StandardCharsets;
 
 @Service
 public class JwtService {
-    private final String SECRET_KEY = "myProjectOnlineFoodOrdering";
+    private final String SECRET_KEY = "myVerySecretKeyForOnlineFoodOrderingApplication12345";
     private final SecretKey key = Keys.hmacShaKeyFor(
             SECRET_KEY.getBytes(StandardCharsets.UTF_8)
     );
-
+//extract all information from jwt
     public Claims extractAllClaims(String token) {
         return Jwts.parser()
                 .verifyWith(key)
