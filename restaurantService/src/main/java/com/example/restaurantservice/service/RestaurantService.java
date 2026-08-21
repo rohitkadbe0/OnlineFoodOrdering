@@ -20,12 +20,12 @@ public class RestaurantService {
 
 
     public void saveEntry(Restaurant restaurant) {
-        if(restaurant.getRestaurantName().equalsIgnoreCase("restaurant")){
+        if (restaurant.getRestaurantName().equalsIgnoreCase("restaurant")) {
             throw new IllegalArgumentException(
                     "Restaurant name cannot be 'restaurant'"
             );
         }
-     restaurant.setApprovalStatus(ApprovalStatus.PENDING);
+        restaurant.setApprovalStatus(ApprovalStatus.PENDING);
         restaurantRepository.save(restaurant);
     }
 
@@ -34,7 +34,6 @@ public class RestaurantService {
     }
 
     public Optional<Restaurant> findByName(String restaurantName) {
-
         return restaurantRepository.findByRestaurantName(restaurantName);
     }
 
@@ -49,25 +48,27 @@ public class RestaurantService {
         }
         return false;
     }
+
     public boolean updateApprovalStatus(
             Long restaurantId, ApprovalStatus status
-    ){
-        Optional<Restaurant> restaurant=restaurantRepository.findByRestaurantId(restaurantId);
-        if (restaurant.isEmpty()){
+    ) {
+        Optional<Restaurant> restaurant = restaurantRepository.findByRestaurantId(restaurantId);
+        if (restaurant.isEmpty()) {
             return false;
         }
-        Restaurant r =restaurant.get();
+        Restaurant r = restaurant.get();
         r.setApprovalStatus(status);
         restaurantRepository.save(r);
         return true;
     }
-    public boolean isRestaurantOpen(Restaurant restaurant){
-        LocalDateTime now =LocalDateTime.now();
-        if(now.getDayOfWeek()==restaurant.getWeeklyOff()){
+
+    public boolean isRestaurantOpen(Restaurant restaurant) {
+        LocalDateTime now = LocalDateTime.now();
+        if (now.getDayOfWeek() == restaurant.getWeeklyOff()) {
             return false;
         }
         LocalTime currentTime = now.toLocalTime();
         return !currentTime.isBefore(restaurant.getOpeningTime())
-        && currentTime.isBefore(restaurant.getClosingTime());
+                && currentTime.isBefore(restaurant.getClosingTime());
     }
 }
