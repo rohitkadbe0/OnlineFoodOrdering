@@ -110,7 +110,6 @@ public class RestaurantController {
         } else {
             r.setRestaurantStatus(RestaurantStatus.CLOSED);
         }
-
         return ResponseEntity.ok(r);
     }
 
