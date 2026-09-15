@@ -1,6 +1,9 @@
 package com.example.restaurantservice.service;
 
 import com.example.restaurantservice.entity.Food;
+import com.example.restaurantservice.enums.ApprovalStatus;
+import com.example.restaurantservice.enums.FoodStatus;
+import com.example.restaurantservice.enums.RestaurantStatus;
 import com.example.restaurantservice.repository.FoodRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -14,7 +17,9 @@ public class FoodService {
     private FoodRepository foodRepository;
 
     public void saveEntry(Food food) {
-        if (food.getFoodName().equalsIgnoreCase("Food")) {
+        if (food.getFoodName() == null ||
+                food.getFoodName().isBlank() ||
+                food.getFoodName().equalsIgnoreCase("Food")) {
             throw new IllegalArgumentException(
                     "Give correct name of food"
             );
@@ -22,13 +27,21 @@ public class FoodService {
         foodRepository.save(food);
     }
 
-    public List<Food> getAll() {
-        return foodRepository.findAll();
+    public List<Food> getAvailableFood() {
+        return foodRepository.findAll()
+                .stream()
+                .filter(food ->
+                        food.getFoodStatus() == FoodStatus.AVAILABLE
+                                && food.getRestaurantStatus() == RestaurantStatus.OPEN
+                                && food.getApprovalStatus() == ApprovalStatus.APPROVED
+                )
+                .toList();
+
     }
 
-    public boolean deleteFood(Long FoodId) {
-        if (foodRepository.existsById(FoodId)) {
-            foodRepository.deleteById(FoodId);
+    public boolean deleteFood(Long foodId) {
+        if (foodRepository.existsById(foodId)) {
+            foodRepository.deleteById(foodId);
             return true;
         }
         return false;
@@ -47,7 +60,11 @@ public class FoodService {
     }
 
     public Optional<Food> findByFoodName(String foodName) {
-        return foodRepository.findByName(foodName);
+        return foodRepository.findByFoodName(foodName);
+    }
+
+    public Food updateFood(Food food) {
+        return foodRepository.save(food);
     }
 }
 
