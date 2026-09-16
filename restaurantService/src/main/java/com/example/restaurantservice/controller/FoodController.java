@@ -20,7 +20,7 @@ public class FoodController {
     @Autowired
     private FoodService foodService;
 
-    @GetMapping
+    @GetMapping("/available")
     public List<Food> getAll() {
         return foodService.getAvailableFood();
     }
@@ -71,8 +71,12 @@ public class FoodController {
 
     @GetMapping("/foodName/{foodName}")
     public ResponseEntity<Food> findByFoodName(@PathVariable String foodName) {
-        Optional<Food> byRestaurantId = foodService.findByFoodName(foodName);
-        Food f = byRestaurantId.get();
+        Optional<Food> byFoodName = foodService.findByFoodName(foodName);
+
+        if (byFoodName.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+        Food f = byFoodName.get();
         if (f.getFoodStatus() == FoodStatus.AVAILABLE
                 && f.getRestaurantStatus() == RestaurantStatus.OPEN
                 && f.getApprovalStatus() == ApprovalStatus.APPROVED) {
@@ -82,7 +86,7 @@ public class FoodController {
     }
 
     @PreAuthorize("hasRole('RESTAURANT_OWNER')")
-    @PutMapping
+    @PutMapping("/Id/{foodId}")
     public ResponseEntity<?> updateFood(
             @PathVariable Long foodId,
             @RequestBody Food food
