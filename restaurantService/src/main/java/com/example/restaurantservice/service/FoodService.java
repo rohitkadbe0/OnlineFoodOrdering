@@ -47,11 +47,11 @@ public class FoodService {
         return false;
     }
 
-    public Optional<Food> findByRestaurantName(String restaurantName) {
+    public List<Food> findByRestaurantName(String restaurantName) {
         return foodRepository.findByRestaurantName(restaurantName);
     }
 
-    public Optional<Food> findByRestaurantId(Long id) {
+    public List<Food> findByRestaurantId(Long id) {
         return foodRepository.findByRestaurantId(id);
     }
 
@@ -59,7 +59,7 @@ public class FoodService {
         return foodRepository.findByFoodId(id);
     }
 
-    public Optional<Food> findByFoodName(String foodName) {
+    public List<Food> findByFoodName(String foodName) {
         return foodRepository.findByFoodName(foodName);
     }
 

@@ -21,8 +21,8 @@ public class FoodController {
     private FoodService foodService;
 
     @GetMapping("/available")
-    public List<Food> getAll() {
-        return foodService.getAvailableFood();
+    public ResponseEntity<List<Food>>getAll() {
+        return ResponseEntity.ok(foodService.getAvailableFood());
     }
 
     @PreAuthorize("hasRole('RESTAURANT_OWNER')")
@@ -33,28 +33,47 @@ public class FoodController {
     }
 
     @GetMapping("/restaurantName/{restaurantName}")
-    public ResponseEntity<Food> findByRestaurantName(
+    public ResponseEntity<?> findByRestaurantName(
             @PathVariable String restaurantName) {
-        Optional<Food> byRestaurantName = foodService.findByRestaurantName(restaurantName);
-        Food f = byRestaurantName.get();
-        if (f.getFoodStatus() == FoodStatus.AVAILABLE
-                && f.getRestaurantStatus() == RestaurantStatus.OPEN
-                && f.getApprovalStatus() == ApprovalStatus.APPROVED) {
-            return ResponseEntity.ok(f);
+
+        List<Food> foods =
+                foodService.findByRestaurantName(restaurantName);
+
+        List<Food> availableFoods = foods.stream()
+                .filter(food ->
+                        food.getFoodStatus() == FoodStatus.AVAILABLE
+                                && food.getRestaurantStatus() == RestaurantStatus.OPEN
+                                && food.getApprovalStatus() == ApprovalStatus.APPROVED
+                )
+                .toList();
+
+        if (availableFoods.isEmpty()) {
+            return ResponseEntity.notFound().build();
         }
-        return ResponseEntity.notFound().build();
+
+        return ResponseEntity.ok(availableFoods);
     }
 
     @GetMapping("/restaurantId/{restaurantId}")
-    public ResponseEntity<Food> findByRestaurantId(@PathVariable Long restaurantId) {
-        Optional<Food> byRestaurantId = foodService.findByRestaurantId(restaurantId);
-        Food f = byRestaurantId.get();
-        if (f.getFoodStatus() == FoodStatus.AVAILABLE
-                && f.getRestaurantStatus() == RestaurantStatus.OPEN
-                && f.getApprovalStatus() == ApprovalStatus.APPROVED) {
-            return ResponseEntity.ok(f);
+    public ResponseEntity<?> findByRestaurantId(
+            @PathVariable Long restaurantId) {
+
+        List<Food> foods =
+                foodService.findByRestaurantId(restaurantId);
+
+        List<Food> availableFoods = foods.stream()
+                .filter(food ->
+                        food.getFoodStatus() == FoodStatus.AVAILABLE
+                                && food.getRestaurantStatus() == RestaurantStatus.OPEN
+                                && food.getApprovalStatus() == ApprovalStatus.APPROVED
+                )
+                .toList();
+
+        if (availableFoods.isEmpty()) {
+            return ResponseEntity.notFound().build();
         }
-        return ResponseEntity.notFound().build();
+
+        return ResponseEntity.ok(availableFoods);
     }
 
     @GetMapping("/foodId/{foodId}")
@@ -70,19 +89,29 @@ public class FoodController {
     }
 
     @GetMapping("/foodName/{foodName}")
-    public ResponseEntity<Food> findByFoodName(@PathVariable String foodName) {
-        Optional<Food> byFoodName = foodService.findByFoodName(foodName);
+    public ResponseEntity<?> findByFoodName(
+            @PathVariable String foodName) {
 
-        if (byFoodName.isEmpty()) {
+        List<Food> foods =
+                foodService.findByFoodName(foodName);
+
+        if (foods.isEmpty()) {
             return ResponseEntity.notFound().build();
         }
-        Food f = byFoodName.get();
-        if (f.getFoodStatus() == FoodStatus.AVAILABLE
-                && f.getRestaurantStatus() == RestaurantStatus.OPEN
-                && f.getApprovalStatus() == ApprovalStatus.APPROVED) {
-            return ResponseEntity.ok(f);
+
+        List<Food> availableFoods = foods.stream()
+                .filter(food ->
+                        food.getFoodStatus() == FoodStatus.AVAILABLE
+                                && food.getRestaurantStatus() == RestaurantStatus.OPEN
+                                && food.getApprovalStatus() == ApprovalStatus.APPROVED
+                )
+                .toList();
+
+        if (availableFoods.isEmpty()) {
+            return ResponseEntity.notFound().build();
         }
-        return ResponseEntity.notFound().build();
+
+        return ResponseEntity.ok(availableFoods);
     }
 
     @PreAuthorize("hasRole('RESTAURANT_OWNER')")
