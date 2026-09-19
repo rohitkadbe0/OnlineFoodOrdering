@@ -27,7 +27,5 @@ public class Order {
     private BigDecimal totalAmount;
     @Enumerated(EnumType.STRING)
     private OrderStatus orderStatus;
-    private LocalDateTime orderDate =LocalDateTime.now();
-
-
+    private LocalDateTime orderDate = LocalDateTime.now();
 }
