@@ -21,7 +21,7 @@ public class FoodController {
     private FoodService foodService;
 
     @GetMapping("/available")
-    public ResponseEntity<List<Food>>getAll() {
+    public ResponseEntity<List<Food>> getAll() {
         return ResponseEntity.ok(foodService.getAvailableFood());
     }
 
@@ -103,6 +103,7 @@ public class FoodController {
                 .filter(food ->
                         food.getFoodStatus() == FoodStatus.AVAILABLE
                                 && food.getRestaurantStatus() == RestaurantStatus.OPEN
+
                                 && food.getApprovalStatus() == ApprovalStatus.APPROVED
                 )
                 .toList();

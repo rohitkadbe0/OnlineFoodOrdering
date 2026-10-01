@@ -25,6 +25,15 @@ public class RestaurantService {
                     "Restaurant name cannot be 'restaurant'"
             );
         }
+        if(restaurantRepository.check(
+                restaurant.getOwnerId(),
+                restaurant.getRestaurantName(),
+                restaurant.getAddress(),
+                restaurant.getEmail(),
+                restaurant.getPhoneNumber()
+        ) .isPresent()){
+            throw new IllegalArgumentException("you are already login");
+        }
         restaurant.setApprovalStatus(ApprovalStatus.PENDING);
         restaurantRepository.save(restaurant);
     }

@@ -27,8 +27,21 @@ public class OrderService {
         return orderRepository.findByOrderId(orderId);
     }
 
-    public List<Order> findCustomerId(Long customerId) {
-        return orderRepository.findByCustomerId(customerId);
+    public List<Order> findCustomerId(Long customerId, LocalDate fromDate, LocalDate toDate) {
+
+        if (fromDate == null && toDate == null) {
+            LocalDate today = LocalDate.now();
+            LocalDateTime startOfDay = today.atStartOfDay();
+            LocalDateTime endOfDay = today.plusDays(1).atStartOfDay().minusNanos(1);
+            return orderRepository.findByCustomerId(customerId, startOfDay, endOfDay);
+        }
+        LocalDateTime startDateTime = fromDate.atStartOfDay();
+
+        LocalDateTime endDateTime =
+                toDate.plusDays(1)
+                        .atStartOfDay()
+                        .minusNanos(1);
+        return orderRepository.findByCustomerId(customerId, startDateTime, endDateTime);
     }
 
     public List<Order> findRestaurantId(Long restaurantId, LocalDate fromDate, LocalDate toDate) {
@@ -45,7 +58,4 @@ public class OrderService {
 
     }
 
-    public List<Order> findRestaurantName(String restaurant) {
-        return orderRepository.findByRestaurantName(restaurant);
-    }
 }
