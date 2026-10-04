@@ -1,10 +1,14 @@
 package com.example.orderservice.service;
 
+import com.example.orderservice.client.FoodClient;
+import com.example.orderservice.dto.FoodResponse;
 import com.example.orderservice.entity.Order;
+import com.example.orderservice.enums.OrderStatus;
 import com.example.orderservice.repository.OrderRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -14,9 +18,25 @@ import java.util.Optional;
 public class OrderService {
     @Autowired
     private OrderRepository orderRepository;
+    @Autowired
+    private FoodClient foodClient;
 
-    public void saveEntry(Order order) {
-        orderRepository.save(order);
+    public Order saveOrder(Order order) {
+        FoodResponse foodResponse = foodClient.getFoodById(order.getFoodId());
+        if (foodResponse == null) {
+            throw new RuntimeException("Food not found");
+        }
+        if (!Boolean.TRUE.equals(foodResponse.getAvailable())) {
+            throw new RuntimeException("Food is not available");
+        }
+        order.setFoodName(foodResponse.getFoodName());
+        order.setPrice(foodResponse.getPrice());
+        BigDecimal totalAmount = foodResponse.getPrice().multiply(
+                BigDecimal.valueOf(order.getQuantity())
+        );
+        order.setTotalAmount(totalAmount);
+        order.setOrderStatus(OrderStatus.PENDING);
+        return orderRepository.save(order);
     }
 
     public List<Order> getAll() {

@@ -33,7 +33,7 @@ public class UserService implements UserDetailsService {
     }
 
     public User register(User user) {
-        System.out.println("USERNAME FROM REQUEST: " + user.getUsername());
+
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         if (user.getRole() == null) {
             user.setRole(Role.CUSTOMER);
@@ -45,7 +45,6 @@ public class UserService implements UserDetailsService {
     }
 
     public User adminRegister(User user) {
-        System.out.println("Admin from request :" + user.getUsername());
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         if (user.getRole() == null) {
             user.setRole(Role.ADMIN);
