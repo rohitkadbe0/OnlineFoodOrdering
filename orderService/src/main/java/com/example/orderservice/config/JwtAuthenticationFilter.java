@@ -27,27 +27,45 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             FilterChain filterChain
     ) throws ServletException, IOException {
         String authHeader = request.getHeader("Authorization");
-        if (authHeader == null || !authHeader.startsWith("Bearer")) {
+        System.out.println("Authorization Header = " + authHeader);
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            System.out.println("JWT NOT FOUND");
             filterChain.doFilter(request, response);
             return;
         }
         String token = authHeader.substring(7);
-        if (jwtService.isValid(token)) {
+        System.out.println("JWT FOUND");
+        try {
+
             String username = jwtService.extractUsername(token);
             String role = jwtService.extractRole(token);
-            UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
-                    username,
-                    null,
-                    Collections.singletonList(
-                            new SimpleGrantedAuthority(
-                                    "ROLE_" + role
+
+            System.out.println("Username = " + username);
+            System.out.println("Role = " + role);
+
+            UsernamePasswordAuthenticationToken authenticationToken =
+                    new UsernamePasswordAuthenticationToken(
+                            username,
+                            null,
+                            Collections.singletonList(
+                                    new SimpleGrantedAuthority(
+                                            "ROLE_" + role
+                                    )
                             )
-                    )
-            );
+                    );
+
             SecurityContextHolder
                     .getContext()
                     .setAuthentication(authenticationToken);
+
+            System.out.println("AUTHENTICATION SUCCESS");
+
+        } catch (Exception e) {
+
+            System.out.println("JWT VALIDATION FAILED");
+            System.out.println("Reason = " + e.getMessage());
         }
+
         filterChain.doFilter(request, response);
     }
 }

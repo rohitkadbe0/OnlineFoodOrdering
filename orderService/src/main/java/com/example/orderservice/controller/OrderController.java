@@ -19,8 +19,8 @@ public class OrderController {
 
     @PostMapping
     public ResponseEntity<Order> add(@RequestBody Order order) {
-        orderService.saveOrder(order);
-        return ResponseEntity.ok(order);
+      Order savedOrder =  orderService.saveOrder(order);
+        return ResponseEntity.ok(savedOrder);
     }
 
     @PreAuthorize("hasRole('ADMIN')")
