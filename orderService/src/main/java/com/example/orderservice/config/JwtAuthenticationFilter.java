@@ -48,9 +48,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                             username,
                             null,
                             Collections.singletonList(
-                                    new SimpleGrantedAuthority(
-                                            "ROLE_" + role
-                                    )
+                                    new SimpleGrantedAuthority(role)
                             )
                     );
 

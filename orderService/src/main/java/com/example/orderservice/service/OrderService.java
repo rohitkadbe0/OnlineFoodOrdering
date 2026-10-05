@@ -36,6 +36,8 @@ public class OrderService {
         );
         order.setTotalAmount(totalAmount);
         order.setOrderStatus(OrderStatus.PENDING);
+        order.setOrderDate(LocalDateTime.now());
+
         return orderRepository.save(order);
     }
 
@@ -77,5 +79,13 @@ public class OrderService {
                 restaurantId, startDateTime, endDateTime);
 
     }
-
+public Order updateOrderStatus(Long orderId,OrderStatus status){
+        Optional<Order>optionalOrder=orderRepository.findByOrderId(orderId);
+        if(optionalOrder.isEmpty()){
+            throw new IllegalArgumentException("Order not found");
+        }
+        Order order =optionalOrder.get();
+        order.setOrderStatus(status);
+        return orderRepository.save(order);
+}
 }

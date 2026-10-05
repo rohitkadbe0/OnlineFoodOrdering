@@ -11,6 +11,7 @@ import javax.crypto.SecretKey;
 public class JwtService {
     private final String SECRET_KEY =
             "mysecretkeymysecretkeymysecretkey123456789012345678";
+
     private SecretKey getKey() {
         return Keys.hmacShaKeyFor(SECRET_KEY.getBytes());
     }

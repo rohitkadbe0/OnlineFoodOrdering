@@ -3,9 +3,7 @@ package com.example.restaurantservice.service;
 import com.example.restaurantservice.entity.Restaurant;
 import com.example.restaurantservice.enums.ApprovalStatus;
 import com.example.restaurantservice.repository.RestaurantRepository;
-import org.apache.catalina.User;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -25,7 +23,7 @@ public class RestaurantService {
                     "Restaurant name cannot be 'restaurant'"
             );
         }
-        if(restaurantRepository.check(
+        if(restaurantRepository.findByOwnerIdAndRestaurantNameIgnoreCaseAndAddressAndEmailAndPhoneNumber(
                 restaurant.getOwnerId(),
                 restaurant.getRestaurantName(),
                 restaurant.getAddress(),

@@ -10,6 +10,6 @@ import org.springframework.web.bind.annotation.PathVariable;
         url="http://localhost:8081"
 )
 public interface FoodClient {
-    @GetMapping("/foood/foodId/{foodId}")
+    @GetMapping("/food/foodId/{foodId}")
     FoodResponse getFoodById(@PathVariable Long foodId);
 }

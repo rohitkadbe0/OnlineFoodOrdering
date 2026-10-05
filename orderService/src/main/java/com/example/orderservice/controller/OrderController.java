@@ -1,6 +1,7 @@
 package com.example.orderservice.controller;
 
 import com.example.orderservice.entity.Order;
+import com.example.orderservice.enums.OrderStatus;
 import com.example.orderservice.service.OrderService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -19,7 +20,7 @@ public class OrderController {
 
     @PostMapping
     public ResponseEntity<Order> add(@RequestBody Order order) {
-      Order savedOrder =  orderService.saveOrder(order);
+        Order savedOrder = orderService.saveOrder(order);
         return ResponseEntity.ok(savedOrder);
     }
 
@@ -59,6 +60,16 @@ public class OrderController {
             return ResponseEntity.notFound().build();
         }
         return ResponseEntity.ok(orders);
+    }
+
+    @PreAuthorize("hasRole('ADMIN') or hasRole('RESTAURANT_OWNER')")
+    @PutMapping("/{orderId}/status")
+    public ResponseEntity<Order> updateOrderStatus(
+            @PathVariable Long orderId,
+            @RequestParam OrderStatus status
+    ) {
+        Order updatedOrder = orderService.updateOrderStatus(orderId, status);
+        return ResponseEntity.ok(updatedOrder);
     }
 
 
