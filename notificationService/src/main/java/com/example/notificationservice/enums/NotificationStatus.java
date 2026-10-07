@@ -5,5 +5,6 @@ public enum NotificationStatus {
     DELIVERY_BOY_ALLOTTED,
     OUT_FOR_DELIVERY,
     NEAR_LOCATION,
+    REACHED_LOCATION,
     DELIVERED
 }

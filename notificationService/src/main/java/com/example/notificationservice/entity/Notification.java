@@ -5,6 +5,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
+
 @Entity
 @Table(name = "notifications")
 @Data
@@ -18,4 +20,6 @@ public class Notification {
     private Long orderId;
     private String customerEmail;
     private String message;
+    private LocalDateTime notificationDate;
+    private boolean sent;
 }
