@@ -79,13 +79,14 @@ public class OrderService {
                 restaurantId, startDateTime, endDateTime);
 
     }
-public Order updateOrderStatus(Long orderId,OrderStatus status){
-        Optional<Order>optionalOrder=orderRepository.findByOrderId(orderId);
-        if(optionalOrder.isEmpty()){
+
+    public Order updateOrderStatus(Long orderId, OrderStatus status) {
+        Optional<Order> optionalOrder = orderRepository.findByOrderId(orderId);
+        if (optionalOrder.isEmpty()) {
             throw new IllegalArgumentException("Order not found");
         }
-        Order order =optionalOrder.get();
+        Order order = optionalOrder.get();
         order.setOrderStatus(status);
         return orderRepository.save(order);
-}
+    }
 }
