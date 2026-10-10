@@ -21,6 +21,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @EnableMethodSecurity // allow security roles directly on methods
 @RequiredArgsConstructor
 public class SpringSecurity {
+    private final JwtAuthenticationFilter authenticationFilter;
 
     @Bean
     public SecurityFilterChain securityFilterChain(
@@ -33,21 +34,20 @@ public class SpringSecurity {
                         )
                 )
                 .authorizeHttpRequests(auth -> auth
-//                        .requestMatchers("/food/available",
-//                                "/food/restaurantName/**",
-//                                "/food/restaurantId/**",
-//                                "/food/foodId/**",
-//                                "/food/foodName/**")
-//                                .permitAll()
+
                         .anyRequest().permitAll()
+                )
+                .addFilterBefore(
+                        authenticationFilter,
+                        UsernamePasswordAuthenticationFilter.class
                 );
-//                .addFilterBefore(
-//                        jwtAuthenticationFilter,
-//                        UsernamePasswordAuthenticationFilter.class
-//                );
         return http.build();
     }
 
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
 
 }
 

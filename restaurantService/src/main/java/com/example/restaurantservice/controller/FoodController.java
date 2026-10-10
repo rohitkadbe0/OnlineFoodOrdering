@@ -28,11 +28,14 @@ public class FoodController {
     @PreAuthorize("hasRole('RESTAURANT_OWNER')")
     @PostMapping
     public ResponseEntity<Food> addFood(@RequestBody Food food) {
+        System.out.println("POST /food reached FoodController");
+
         foodService.saveEntry(food);
         return ResponseEntity.ok(food);
     }
 
     @GetMapping("/restaurantName/{restaurantName}")
+
     public ResponseEntity<?> findByRestaurantName(
             @PathVariable String restaurantName) {
 

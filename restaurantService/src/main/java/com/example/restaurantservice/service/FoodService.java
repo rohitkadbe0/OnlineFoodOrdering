@@ -1,10 +1,12 @@
 package com.example.restaurantservice.service;
 
 import com.example.restaurantservice.entity.Food;
+import com.example.restaurantservice.entity.Restaurant;
 import com.example.restaurantservice.enums.ApprovalStatus;
 import com.example.restaurantservice.enums.FoodStatus;
 import com.example.restaurantservice.enums.RestaurantStatus;
 import com.example.restaurantservice.repository.FoodRepository;
+import com.example.restaurantservice.repository.RestaurantRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -15,6 +17,8 @@ import java.util.Optional;
 public class FoodService {
     @Autowired
     private FoodRepository foodRepository;
+    @Autowired
+    private RestaurantRepository restaurantRepository;
 
     public void saveEntry(Food food) {
         if (food.getFoodName() == null ||
@@ -24,6 +28,20 @@ public class FoodService {
                     "Give correct name of food"
             );
         }
+        if (food.getRestaurantId() == null) {
+            throw new IllegalArgumentException(
+                    "Restaurant Id is required"
+            );
+        }
+        Restaurant restaurant = restaurantRepository.findById(food.getRestaurantId())
+                .orElseThrow(() -> new RuntimeException("Restaurant not Found"));
+        if (restaurant.getApprovalStatus() != ApprovalStatus.APPROVED) {
+            throw new IllegalArgumentException(
+                    "Restaurant is not approved. Food cannot be added. "
+            );
+        }
+        food.setRestaurantName(restaurant.getRestaurantName());
+        food.setApprovalStatus(restaurant.getApprovalStatus());
         foodRepository.save(food);
     }
 

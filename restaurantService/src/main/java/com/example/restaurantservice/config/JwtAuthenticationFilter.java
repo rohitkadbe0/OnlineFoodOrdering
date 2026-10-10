@@ -2,6 +2,7 @@ package com.example.restaurantservice.config;
 
 
 import java.io.IOException;
+
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -12,7 +13,9 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
+
 import java.util.Collections;
+import java.util.List;
 
 
 @Component
@@ -43,20 +46,22 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             String username = jwtService.extractUsername(token);
             String role = jwtService.extractRole(token);
 
-            UsernamePasswordAuthenticationToken authentication =
-                    new UsernamePasswordAuthenticationToken(
-                            username,
-                            null,
-                            Collections.singletonList(
-                                    new SimpleGrantedAuthority(
-                                            "ROLE_" + role
-                                    )
-                            )
-                    );
+            if (username != null && role != null
+                    && SecurityContextHolder.getContext()
+                    .getAuthentication() == null) {
+                if (role.startsWith("ROLE_")) {
+                    role = role.substring(5);
+                }
+                UsernamePasswordAuthenticationToken authenticationToken =
+                        new UsernamePasswordAuthenticationToken(
+                                username,
+                                null,
+                                List.of(new SimpleGrantedAuthority("ROLE_" + role))
+                        );
+                SecurityContextHolder.getContext()
+                        .setAuthentication(authenticationToken);
+            }
 
-            SecurityContextHolder
-                    .getContext()
-                    .setAuthentication(authentication);
         }
 
         filterChain.doFilter(request, response);

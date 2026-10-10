@@ -23,13 +23,13 @@ public class RestaurantService {
                     "Restaurant name cannot be 'restaurant'"
             );
         }
-        if(restaurantRepository.findByOwnerIdAndRestaurantNameIgnoreCaseAndAddressAndEmailAndPhoneNumber(
+        if (restaurantRepository.findByOwnerIdAndRestaurantNameIgnoreCaseAndAddressAndEmailAndPhoneNumber(
                 restaurant.getOwnerId(),
                 restaurant.getRestaurantName(),
                 restaurant.getAddress(),
                 restaurant.getEmail(),
                 restaurant.getPhoneNumber()
-        ) .isPresent()){
+        ).isPresent()) {
             throw new IllegalArgumentException("you are already login");
         }
         restaurant.setApprovalStatus(ApprovalStatus.PENDING);

@@ -1,7 +1,6 @@
 package com.example.notificationservice.dto;
 
 import com.example.notificationservice.enums.NotificationStatus;
-import com.example.notificationservice.service.NotificationService;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
