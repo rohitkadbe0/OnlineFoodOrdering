@@ -5,7 +5,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.List;
-//this class is used to transfer information to the delivery service using the feign
 
 @Data
 @AllArgsConstructor

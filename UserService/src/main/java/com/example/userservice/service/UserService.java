@@ -1,5 +1,6 @@
 package com.example.userservice.service;
 
+import com.example.userservice.dto.UserResponse;
 import com.example.userservice.entity.User;
 import com.example.userservice.enums.Role;
 import com.example.userservice.repository.UserRepository;
@@ -60,4 +61,17 @@ public class UserService implements UserDetailsService {
         return userRepository.findByUsername(name);
     }
 
+    public Optional<User> findById(Long userId) {
+        return userRepository.findById(userId);
+    }
+
+    public UserResponse toResponse(User user) {
+        return new UserResponse(
+                user.getUserId(),
+                user.getUsername(),
+                user.getAddress(),
+                user.getMobileNumber(),
+                List.of(user.getRole().name())
+        );
+    }
 }

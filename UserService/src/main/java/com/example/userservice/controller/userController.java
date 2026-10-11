@@ -95,4 +95,13 @@ public class userController {
         return ResponseEntity.ok("Admin register Successfully");
     }
 
+    @GetMapping("Id/{userId}")
+    public ResponseEntity<?> getById(@PathVariable String userId) {
+        Optional<User> user = userService.findById(userId);
+        if (user.isPresent()) {
+            return ResponseEntity.ok(userService.toResponse(user.get()));
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not Found");
+        }
+    }
 }
