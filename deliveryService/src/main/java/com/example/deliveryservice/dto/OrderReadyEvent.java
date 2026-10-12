@@ -14,5 +14,5 @@ public class OrderReadyEvent {
     private Long restaurantId;
     private String pickUpAddress;
     private String deliveryAddress;
-    private DeliveryStatus status;
+    private String status;
 }
