@@ -36,16 +36,17 @@ private DeliveryRepository deliveryRepository;
 return deliveryRepository.findById(orderReadyEvent.getOrderId()).orElseThrow();
         }
         //finding an active and available partner
-        DeliveryStatus deliveryStatus=deliveryPartnerRepository.findPartnerStatus(
-                PartnerStatus.ACTIVE)
-                .orElseThrow(()->new ResponseStatusException(
-                        HttpStatus.SERVICE_UNAVAILABLE,
-                        "No delivery partner is available near your location"
-                ));
-
-        UserResponse userResponse=userClient.getUserById(
-                p
-        )
+        Delivery delivery=deliveryPartnerRepository.findPartnerStatus(
+                PartnerStatus.ACTIVE
+        ).orElseThrow(()->new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE,"No delivery is available"));
+       //get the partner's user  detail from UserService
+        UserResponse userResponse=userClient.getUserById(delivery.getDeliveryPartnerId());
+        if(userResponse.getRoles()==null||!(userResponse.getRoles().contains("DELIVERY_PARTNER")||
+                userResponse.getRoles().contains("ROLE_DELIVERY_PARTNER"))){
+            throw new RuntimeException(HttpStatus.BAD_REQUEST,"The selected user is not a delivery partner");
+        }
+        // Create the delivery
+        Delivery delivery1=new
     }
 
 }
