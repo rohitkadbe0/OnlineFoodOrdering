@@ -8,5 +8,5 @@ import java.util.Optional;
 
 public interface DeliveryPartnerRepository extends JpaRepository<DeliveryPartner,Long> {
 
-    Optional<DeliveryPartner> findPartnerStatus(PartnerStatus partnerStatus);
+    Optional<DeliveryPartner>   findFirstByPartnerStatusAndAvailableTrue(PartnerStatus partnerStatus);
 }

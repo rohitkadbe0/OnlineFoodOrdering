@@ -15,6 +15,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
+
 import java.time.LocalDateTime;
 
 @Service
@@ -43,13 +44,13 @@ public class DeliveryService {
             return deliveryRepository.findById(orderReadyEvent.getOrderId()).orElseThrow();
         }
         //finding an active and available partner
-        DeliveryPartner partner = deliveryPartnerRepository.findPartnerStatus(
+        DeliveryPartner partner = deliveryPartnerRepository.  findFirstByPartnerStatusAndAvailableTrue(
                 PartnerStatus.ACTIVE
-        ).orElseThrow(() -> new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE, "No delivery is available"));
+        ).orElseThrow(() -> new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE, "No delivery boy is available"));
 
         // Fetch the partner's account from UserService
         UserResponse userResponse = userClient.getUserById(partner.getUserId());
-        if (userResponse==null||userResponse.getRoles() == null || !(userResponse.getRoles().contains("DELIVERY_PARTNER") ||
+        if (userResponse == null || userResponse.getRoles() == null || !(userResponse.getRoles().contains("DELIVERY_PARTNER") ||
                 userResponse.getRoles().contains("ROLE_DELIVERY_PARTNER"))) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "The selected user is not a delivery partner");
         }
@@ -70,25 +71,65 @@ public class DeliveryService {
 
         return deliveryRepository.save(delivery1);
     }
-@Transactional
-    public Delivery completeDelivery(Long deliveryId){
-        Delivery delivery=deliveryRepository.findById(deliveryId)
-                .orElseThrow(()->new ResponseStatusException(
+
+    @Transactional
+    public Delivery updateDeliveryStatus(Long deliveryId, DeliveryStatus status) {
+        Delivery delivery = deliveryRepository.findById(deliveryId)
+                .orElseThrow(() -> new ResponseStatusException(
                         HttpStatus.NOT_FOUND,
                         "Delivery not Found"
                 ));
-        if(delivery.getDeliveryStatus()!=DeliveryStatus.DELIVERED){
-            delivery.setDeliveryStatus(DeliveryStatus.DELIVERED);
-            delivery.setDeliveredAt(LocalDateTime.now());
-            DeliveryPartner partner=deliveryPartnerRepository
-                    .findById(delivery.getDeliveryPartnerId())
-                    .orElseThrow(()->new ResponseStatusException(
-                            HttpStatus.NOT_FOUND,
-                            "Delivery partner not found"
-                    ));
-            partner.setAvailable(true);
-            deliveryPartnerRepository.save(partner);
+        if (status == null) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST, "Status is required"
+            );
         }
+        DeliveryStatus current = delivery.getDeliveryStatus();
+        if (current == DeliveryStatus.DELIVERED || current == DeliveryStatus.FAILED || current == DeliveryStatus.CANCELLED) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "Delivery is already in a final state");
+        }
+        boolean valid = (current == DeliveryStatus.ASSIGNED && status == DeliveryStatus.PICKED_UP) || (current == DeliveryStatus.PICKED_UP
+                && status == DeliveryStatus.OUT_FOR_DELIVERY)
+                || (current == DeliveryStatus.OUT_FOR_DELIVERY
+                && status == DeliveryStatus.REACHED_LOCATION)
+                || (current == DeliveryStatus.REACHED_LOCATION
+                && status == DeliveryStatus.DELIVERED)
+                || status == DeliveryStatus.FAILED
+                || status == DeliveryStatus.CANCELLED;
+
+        if (!valid) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "Invalid status transition: " + current + " to " + status);
+        }
+        if (status == DeliveryStatus.PICKED_UP) {
+            delivery.setPickedUpAt(LocalDateTime.now());
+        }
+        if (status == DeliveryStatus.DELIVERED) {
+            delivery.setDeliveredAt(LocalDateTime.now());
+        }
+        if (status == DeliveryStatus.DELIVERED ||
+                status == DeliveryStatus.FAILED ||
+                status == DeliveryStatus.CANCELLED) {
+            DeliveryPartner partner = deliveryPartnerRepository
+                    .findById(delivery.getDeliveryId())
+                    .orElseThrow(() -> new ResponseStatusException(
+                            HttpStatus.NOT_FOUND, "Delivery partner not found"));
+            if (partner.getPartnerStatus() == PartnerStatus.ACTIVE) {
+                partner.setAvailable(true);
+                deliveryPartnerRepository.save(partner);
+            }
+
+        }
+        delivery.setDeliveryStatus(status);
         return deliveryRepository.save(delivery);
-}
+    }
+
+    @Transactional(readOnly = true)
+    public Delivery getDeliveryById(Long deliveryId) {
+        return deliveryRepository.findById(deliveryId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Delivery not Found"));
+    }
 }
