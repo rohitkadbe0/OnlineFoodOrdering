@@ -2,11 +2,15 @@ package com.example.orderservice.service;
 
 import com.example.orderservice.client.FoodClient;
 import com.example.orderservice.dto.FoodResponse;
+import com.example.orderservice.dto.OrderReadyEvent;
 import com.example.orderservice.entity.Order;
 import com.example.orderservice.enums.OrderStatus;
 import com.example.orderservice.repository.OrderRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -19,74 +23,44 @@ public class OrderService {
     @Autowired
     private OrderRepository orderRepository;
     @Autowired
-    private FoodClient foodClient;
+    private OrderEventProducer orderEventProducer;
 
-    public Order saveOrder(Order order) {
-        FoodResponse foodResponse = foodClient.getFoodById(order.getFoodId());
-        if (foodResponse == null) {
-            throw new RuntimeException("Food not found");
+    @Transactional
+    public Order markReadyForPickup(Long orderId) {
+
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND,
+                        "Order not found: " + orderId
+                ));
+
+        if (order.getOrderStatus() != OrderStatus.READY_FOR_PICKUP) {
+
+            if (order.getOrderStatus() != OrderStatus.CONFIRMED) {
+                throw new ResponseStatusException(
+                        HttpStatus.BAD_REQUEST,
+                        "Order must be CONFIRMED or READY_FOR_PICKUP"
+                );
+            }
+
+            order.setOrderStatus(OrderStatus.READY_FOR_PICKUP);
+            order = orderRepository.save(order);
         }
-        if (!Boolean.TRUE.equals(foodResponse.getAvailable())) {
-            throw new RuntimeException("Food is not available");
-        }
-        order.setFoodName(foodResponse.getFoodName());
-        order.setPrice(foodResponse.getPrice());
-        BigDecimal totalAmount = foodResponse.getPrice().multiply(
-                BigDecimal.valueOf(order.getQuantity())
+
+        // Publish event for both newly ready and already-ready orders.
+        OrderReadyEvent event = new OrderReadyEvent(
+                order.getOrderId(),
+                order.getCustomerId(),
+                order.getRestaurantId(),
+                order.getPickUpAddress(),
+                order.getDeliveryAddress(),
+                "READY_FOR_PICKUP"
         );
-        order.setTotalAmount(totalAmount);
-        order.setOrderStatus(OrderStatus.PENDING);
-        order.setOrderDate(LocalDateTime.now());
 
-        return orderRepository.save(order);
+        orderEventProducer.publishOrderReady(event);
+
+        return order;
     }
 
-    public List<Order> getAll() {
-        return orderRepository.findAll();
-    }
 
-    public Optional<Order> findOrderId(Long orderId) {
-        return orderRepository.findByOrderId(orderId);
-    }
-
-    public List<Order> findCustomerId(Long customerId, LocalDate fromDate, LocalDate toDate) {
-
-        if (fromDate == null && toDate == null) {
-            LocalDate today = LocalDate.now();
-            LocalDateTime startOfDay = today.atStartOfDay();
-            LocalDateTime endOfDay = today.plusDays(1).atStartOfDay().minusNanos(1);
-            return orderRepository.findByCustomerId(customerId, startOfDay, endOfDay);
-        }
-        LocalDateTime startDateTime = fromDate.atStartOfDay();
-
-        LocalDateTime endDateTime =
-                toDate.plusDays(1)
-                        .atStartOfDay()
-                        .minusNanos(1);
-        return orderRepository.findByCustomerId(customerId, startDateTime, endDateTime);
-    }
-
-    public List<Order> findRestaurantId(Long restaurantId, LocalDate fromDate, LocalDate toDate) {
-        if (fromDate == null && toDate == null) {
-            LocalDate today = LocalDate.now();
-            LocalDateTime startOfDay = today.atStartOfDay();
-            LocalDateTime endOfDay = today.plusDays(1).atStartOfDay().minusNanos(1);
-            return orderRepository.findByRestaurantId(restaurantId, startOfDay, endOfDay);
-        }
-        LocalDateTime startDateTime = fromDate.atStartOfDay();
-        LocalDateTime endDateTime = toDate.plusDays(1).atStartOfDay().minusNanos(1);
-        return orderRepository.findByRestaurantId(
-                restaurantId, startDateTime, endDateTime);
-
-    }
-
-    public Order updateOrderStatus(Long orderId, OrderStatus status) {
-        Optional<Order> optionalOrder = orderRepository.findByOrderId(orderId);
-        if (optionalOrder.isEmpty()) {
-            throw new IllegalArgumentException("Order not found");
-        }
-        Order order = optionalOrder.get();
-        order.setOrderStatus(status);
-        return orderRepository.save(order);
-    }
 }

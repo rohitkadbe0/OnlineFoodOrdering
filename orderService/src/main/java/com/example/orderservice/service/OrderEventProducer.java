@@ -11,22 +11,12 @@ public class OrderEventProducer {
     private final KafkaTemplate<String, OrderReadyEvent> kafkaTemplate;
     private static final String TOPIC =
             "order-ready-for-pickup";
-    public void publishOrderReady(OrderReadyEvent event){
+    public void publishOrderReady(OrderReadyEvent event) {
+
         kafkaTemplate.send(
                 TOPIC,
-                event.getOrderId().toString(),
+                String.valueOf(event.getOrderId()),
                 event
-        ).whenComplete((result, exception)->{
-            if (exception!=null){
-                System.err.println(
-                        "Failed to publish order event:"
-                        +exception.getMessage()
-                );
-            }else {
-                System.out.println(
-                        "Order event published. OrderID: "+event.getOrderId()
-                );
-            }
-        });
+        );
     }
 }

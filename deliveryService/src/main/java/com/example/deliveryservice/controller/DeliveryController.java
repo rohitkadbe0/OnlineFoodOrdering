@@ -15,34 +15,26 @@ import org.springframework.web.bind.annotation.*;
 public class DeliveryController {
     @Autowired
     private DeliveryService deliveryService;
-
-    @PreAuthorize("hasRole('DELIVERY_PARTNER') or hasRole('ADMIN')")
-    @PostMapping
-    public ResponseEntity<Delivery> addDelivery(@RequestBody OrderReadyEvent event) {
-        Delivery delivery = deliveryService.addDelivery(event);
-        return ResponseEntity.status(HttpStatus.CREATED).body(delivery);
-    }
-
-    @PreAuthorize("hasRole('DELIVERY_PARTNER') or hasRole('ADMIN')")
-    @PutMapping("/{deliveryId}/accept")
-    public ResponseEntity<Delivery> acceptDelivery(@RequestBody OrderReadyEvent event) {
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .body(deliveryService.addDelivery(event));
-    }
-
-    @PreAuthorize("hasRole('DELIVERY_PARTNER') or hasRole('ADMIN')")
-    @PutMapping("{deliveryId}/status")
+    // Update delivery progress
+    @PutMapping("/{deliveryId}/status/{status}")
+    @PreAuthorize("hasAnyRole('DELIVERY_PARTNER', 'ADMIN')")
     public ResponseEntity<Delivery> updateStatus(
             @PathVariable Long deliveryId,
-            @RequestParam DeliveryStatus status
-    ) {
-        return ResponseEntity.ok(deliveryService.updateDeliveryStatus(deliveryId, status));
+            @RequestParam DeliveryStatus status) {
+
+        return ResponseEntity.ok(
+                deliveryService.updateDeliveryStatus(deliveryId, status)
+        );
     }
 
+    // Get delivery details
     @GetMapping("/{deliveryId}")
+    @PreAuthorize("hasRole('DELIVERY_PARTNER') or hasRole('ADMIN')")
     public ResponseEntity<Delivery> getDelivery(
-            @PathVariable Long deliveryId
-    ) {
-        return ResponseEntity.ok(deliveryService.getDeliveryById(deliveryId));
+            @PathVariable Long deliveryId) {
+
+        return ResponseEntity.ok(
+                deliveryService.getDeliveryById(deliveryId)
+        );
     }
 }

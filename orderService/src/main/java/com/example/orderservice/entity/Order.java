@@ -21,6 +21,8 @@ public class Order {
     private Long customerId;
     private Long restaurantId;
     private Long foodId;
+    private String pickUpAddress;
+    private String deliveryAddress;
     private String foodName;
     private Integer quantity;
     private BigDecimal price;

@@ -1,6 +1,5 @@
-package com.example.orderservice.config;
 
-import java.io.IOException;
+package com.example.orderservice.config;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -13,11 +12,13 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-import java.util.Collections;
+import java.io.IOException;
+import java.util.List;
 
 @Component
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
+
     private final JwtService jwtService;
 
     @Override
@@ -26,42 +27,65 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             HttpServletResponse response,
             FilterChain filterChain
     ) throws ServletException, IOException {
+
         String authHeader = request.getHeader("Authorization");
-        System.out.println("Authorization Header = " + authHeader);
+
+        System.out.println("Request: " + request.getMethod()
+                + " " + request.getRequestURI());
+
+        System.out.println("Authorization header present: "
+                + (authHeader != null
+                && authHeader.startsWith("Bearer ")));
+
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-            System.out.println("JWT NOT FOUND");
             filterChain.doFilter(request, response);
             return;
         }
-        String token = authHeader.substring(7);
-        System.out.println("JWT FOUND");
+
         try {
+            String token = authHeader.substring(7);
+
+            if (!jwtService.isValid(token)) {
+                System.err.println("JWT is invalid or expired");
+                filterChain.doFilter(request, response);
+
+                System.out.println("Final HTTP response status: "
+                        + response.getStatus());                return;
+            }
 
             String username = jwtService.extractUsername(token);
             String role = jwtService.extractRole(token);
 
-            System.out.println("Username = " + username);
-            System.out.println("Role = " + role);
+            System.out.println("JWT username: " + username);
+            System.out.println("JWT role: " + role);
 
-            UsernamePasswordAuthenticationToken authenticationToken =
+            if (username == null || username.isBlank()
+                    || role == null || role.isBlank()) {
+                throw new IllegalArgumentException(
+                        "Username or role missing from JWT");
+            }
+
+            if (!role.startsWith("ROLE_")) {
+                role = "ROLE_" + role;
+            }
+
+            var authentication =
                     new UsernamePasswordAuthenticationToken(
                             username,
                             null,
-                            Collections.singletonList(
-                                    new SimpleGrantedAuthority(role)
-                            )
+                            List.of(new SimpleGrantedAuthority(role))
                     );
 
-            SecurityContextHolder
-                    .getContext()
-                    .setAuthentication(authenticationToken);
+            SecurityContextHolder.getContext()
+                    .setAuthentication(authentication);
 
-            System.out.println("AUTHENTICATION SUCCESS");
+            System.out.println("JWT authentication successful");
 
         } catch (Exception e) {
-
-            System.out.println("JWT VALIDATION FAILED");
-            System.out.println("Reason = " + e.getMessage());
+            SecurityContextHolder.clearContext();
+            System.err.println("JWT authentication failed: "
+                    + e.getClass().getSimpleName()
+                    + " - " + e.getMessage());
         }
 
         filterChain.doFilter(request, response);

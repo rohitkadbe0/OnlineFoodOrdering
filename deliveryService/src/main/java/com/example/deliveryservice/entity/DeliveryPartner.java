@@ -1,6 +1,5 @@
 package com.example.deliveryservice.entity;
 
-import com.example.deliveryservice.enums.PartnerStatus;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -24,10 +23,7 @@ public class DeliveryPartner {
     private String mobileNumber;
     private String vehicleNumber;
     private String vehicleType;
-
-    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private PartnerStatus partnerStatus;
-    private boolean available=true;
+    private Boolean  available=true;
     private LocalDateTime createdAt;
 }

@@ -1,5 +1,6 @@
 package com.example.orderservice.config;
 
+import jakarta.servlet.DispatcherType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -22,22 +23,32 @@ public class SpringSecurity {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http)
             throws Exception {
+
         http
                 .csrf(csrf -> csrf.disable())
+                .formLogin(form -> form.disable())
+                .httpBasic(basic -> basic.disable())
                 .sessionManagement(session ->
-                        session.sessionCreationPolicy(
-                                SessionCreationPolicy.STATELESS
-                        ))
-                .authorizeHttpRequests(auth -> auth
-                        .anyRequest().authenticated()
+                        session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
-                .exceptionHandling(exception -> exception
-                        .authenticationEntryPoint((request, response, authException) -> {
+                .authorizeHttpRequests(auth ->
+                        auth
+                                .dispatcherTypeMatchers(
+                                        DispatcherType.ERROR
+                                ).permitAll()
+                                .requestMatchers("/error").permitAll()
+
+                                .anyRequest().authenticated()
+                )
+                .exceptionHandling(exception ->
+                        exception.authenticationEntryPoint((request, response, ex) -> {
+                            System.err.println("401 entry point triggered");
+                            System.err.println("URI: " + request.getRequestURI());
+                            System.err.println("Exception: " + ex.getMessage());
                             response.setStatus(HttpStatus.UNAUTHORIZED.value());
                             response.setContentType("text/plain");
                             response.getWriter().write("Please login first");
                         })
-
                 )
                 .addFilterBefore(
                         jwtAuthenticationFilter,

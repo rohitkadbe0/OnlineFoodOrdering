@@ -35,17 +35,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         System.out.println("JWT FOUND");
         try {
             if (!jwtService.isValid(token)) {
-                SecurityContextHolder.clearContext();
-                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-                response.getWriter().write("Invalid or expired JWT");
+                sendUnauthorized(response, "Invalid or expired JWT");
                 return;
             }
             String username = jwtService.extractUsername(token);
             String role = jwtService.extractRole(token);
-            if (username == null || role == null || role.isBlank()) {
-                SecurityContextHolder.clearContext();
-                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-                response.getWriter().write("Invalid JWT claims");
+            if (username == null || role == null || role.isBlank()||username.isBlank()) {
+                sendUnauthorized(response, "Invalid JWT claims");
+
                 return;
             }
             System.out.println("Username = " + username);
@@ -64,14 +61,29 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                     .getContext()
                     .setAuthentication(authenticationToken);
 
+            System.out.println("Username = " + username);
+            System.out.println("Role = " + role);
             System.out.println("AUTHENTICATION SUCCESS");
-
         } catch (Exception e) {
+            SecurityContextHolder.clearContext();
 
             System.out.println("JWT VALIDATION FAILED");
             System.out.println("Reason = " + e.getMessage());
+            sendUnauthorized(response, "Invalid or expired JWT");
+return;
         }
 
         filterChain.doFilter(request, response);
+    }
+    private void sendUnauthorized(
+            HttpServletResponse response,
+            String message
+    ) throws IOException {
+
+        SecurityContextHolder.clearContext();
+
+        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+        response.setContentType("text/plain");
+        response.getWriter().write(message);
     }
 }
