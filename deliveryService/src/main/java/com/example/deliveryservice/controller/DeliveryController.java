@@ -15,26 +15,28 @@ import org.springframework.web.bind.annotation.*;
 public class DeliveryController {
     @Autowired
     private DeliveryService deliveryService;
-    // Update delivery progress
-    @PutMapping("/{deliveryId}/status/{status}")
-    @PreAuthorize("hasAnyRole('DELIVERY_PARTNER', 'ADMIN')")
-    public ResponseEntity<Delivery> updateStatus(
+    @GetMapping("/{deliveryId}")
+    public Delivery getDeliveryById(
+            @PathVariable Long deliveryId) {
+
+        return deliveryService.getDeliveryById(deliveryId);
+    }
+
+    @GetMapping("/order/{orderId}")
+    public Delivery getDeliveryByOrderId(
+            @PathVariable Long orderId) {
+
+        return deliveryService.getDeliveryByOrderId(orderId);
+    }
+
+    @PutMapping("/{deliveryId}/status")
+    public Delivery updateStatus(
             @PathVariable Long deliveryId,
             @RequestParam DeliveryStatus status) {
 
-        return ResponseEntity.ok(
-                deliveryService.updateDeliveryStatus(deliveryId, status)
-        );
-    }
-
-    // Get delivery details
-    @GetMapping("/{deliveryId}")
-    @PreAuthorize("hasRole('DELIVERY_PARTNER') or hasRole('ADMIN')")
-    public ResponseEntity<Delivery> getDelivery(
-            @PathVariable Long deliveryId) {
-
-        return ResponseEntity.ok(
-                deliveryService.getDeliveryById(deliveryId)
+        return deliveryService.updateDeliveryStatus(
+                deliveryId,
+                status
         );
     }
 }

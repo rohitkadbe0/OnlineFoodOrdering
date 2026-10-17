@@ -14,6 +14,7 @@ public class OrderReadyConsumer {
             groupId = "delivery-service-group",
             containerFactory = "kafkaListenerContainerFactory"
     )
+    //this method is used automatically by Spring Kafka, even if you never call it directly from another Java method.
     public void consumeOrderReady(OrderReadyEvent event){
         System.out.println(
                 "Received order-ready event for order:"+event.getOrderId()

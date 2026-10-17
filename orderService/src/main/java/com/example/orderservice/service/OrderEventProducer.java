@@ -8,9 +8,10 @@ import org.springframework.stereotype.Service;
 @Service
 @RequiredArgsConstructor
 public class OrderEventProducer {
-    private final KafkaTemplate<String, OrderReadyEvent> kafkaTemplate;
     private static final String TOPIC =
             "order-ready-for-pickup";
+    private final KafkaTemplate<String, OrderReadyEvent> kafkaTemplate;
+
     public void publishOrderReady(OrderReadyEvent event) {
 
         kafkaTemplate.send(

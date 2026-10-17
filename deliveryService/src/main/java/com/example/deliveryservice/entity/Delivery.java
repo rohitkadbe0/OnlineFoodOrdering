@@ -9,7 +9,12 @@ import lombok.NoArgsConstructor;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name="deliveries")
+@Table(name="deliveries",
+        uniqueConstraints = @UniqueConstraint(
+                name = "uk_delivery_order_id",
+                columnNames = "order_id"
+        )
+)
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
